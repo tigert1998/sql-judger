@@ -83,13 +83,14 @@ class PersistentDrawerLeft extends React.Component {
     super(props);
     this.state = {
       open: false,
-      problemNames: []
+      problemNames: [],
+      problemID: null
     };
   }
 
   componentDidMount() {
     let that = this;
-    fetch(API_ENDPOINT + '/archive').then((response) => {
+    fetch(API_ENDPOINT + '/api/archive').then((response) => {
       if (response.status !== 200) {
         console.log("[log] response.status = " + response.status);
         return;
@@ -99,7 +100,9 @@ class PersistentDrawerLeft extends React.Component {
           open: that.state.open,
           problemNames: data.slice()
         });
-      });
+      }).catch((error) => {
+        console.log("[log] run into an error when parsing into JSON:", error);    
+      });;
     }).catch((error) => {
       console.log("[log] fetch an error:", error);
     });
@@ -157,7 +160,16 @@ class PersistentDrawerLeft extends React.Component {
           <Divider />
           <List>
             {this.state.problemNames.map((text, index) => (
-              <ListItem button key={text}>
+              <ListItem 
+                button 
+                key={text} 
+                onClick={() => { 
+                  this.setState({
+                    open: this.state.open, 
+                    problemNames: this.state.problemNames,
+                    problemID: text
+                  }) 
+                }}>
                 <ListItemText primary={text} />
               </ListItem>
             ))}
@@ -169,7 +181,7 @@ class PersistentDrawerLeft extends React.Component {
           })}
         >
           <div className={classes.drawerHeader} />
-          <AnswerSheet></AnswerSheet>
+          <AnswerSheet problemID={this.state.problemID}></AnswerSheet>
         </main>
       </div>
     );
