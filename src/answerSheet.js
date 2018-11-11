@@ -5,7 +5,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
-import Markdown from '@nteract/markdown'
+import Markdown from '@nteract/markdown';
 
 import { API_ENDPOINT } from './constants';
 
@@ -97,9 +97,9 @@ class AnswerSheet extends React.Component {
     } else {
       return (
         <div>
-           <Markdown source={this.state.description}></Markdown>
+          <Markdown source={this.state.description}></Markdown>
           <TextField
-            id="filled-textarea"
+            id="code-textarea"
             label="code"
             placeholder="Input your code here"
             multiline
@@ -109,7 +109,27 @@ class AnswerSheet extends React.Component {
             variant="filled"
             rows="25"
           />
-          <Button variant="contained" color="primary" className={classes.button}>
+          <Button 
+            variant="contained" color="primary" 
+            className={classes.button}
+            onClick={() => {
+              let dom = document.getElementById("code-textarea");
+              let data = {};
+              data.problemID = this.props.problemID;
+              data.code = dom.value;
+              let stringifiedData = JSON.stringify(data);
+
+              fetch(API_ENDPOINT + "/api/submitCode", {
+                method: 'POST',
+                body: stringifiedData,
+                headers:{
+                  "Content-Type": "application/json",
+                }
+              }).then(response => response.json()).then((result) => {
+                alert(result.status + "\n" + result.reason);
+              });
+            }}
+          >
             Submit
           </Button>
         </div>

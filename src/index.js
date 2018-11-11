@@ -5,7 +5,7 @@ import Frame from './frame';
 class App extends React.Component {
   render() {
     return (
-      <Frame></Frame>
+      <Frame />
     );
   }
 }
