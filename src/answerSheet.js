@@ -8,6 +8,7 @@ import Typography from '@material-ui/core/Typography';
 import Markdown from '@nteract/markdown';
 
 import { API_ENDPOINT } from './constants';
+import ResultModal from './resultModal';
 
 const styles = theme => ({
   container: {
@@ -41,7 +42,9 @@ class AnswerSheet extends React.Component {
     super(props);
     this.state = {
       ok: false,
-      description: ""
+      description: "",
+      modalOpen: false,
+      testResult: null
     };
   }
 
@@ -49,7 +52,9 @@ class AnswerSheet extends React.Component {
     if (nextProps.problemID === null) {
       this.setState({
         ok: false,
-        description: ""
+        description: "",
+        modalOpen: false,
+        testResult: null
       });
     } else {
       if (AnswerSheet.descriptionCache[nextProps.problemID]) {
@@ -69,7 +74,9 @@ class AnswerSheet extends React.Component {
             AnswerSheet.descriptionCache[nextProps.problemID] = data;
             that.setState({
               ok: true,
-              description: data
+              description: data,
+              modalOpen: false,
+              testResult: null
             });
           });
         }).catch((error) => {
@@ -126,12 +133,29 @@ class AnswerSheet extends React.Component {
                   "Content-Type": "application/json",
                 }
               }).then(response => response.json()).then((result) => {
-                alert(result.status + "\n" + result.reason);
+                this.setState({
+                  ok: this.state.ok,
+                  description: this.state.description,
+                  modalOpen: true,
+                  testResult: result 
+                });
               });
             }}
           >
             Submit
           </Button>
+          <ResultModal 
+            open={this.state.modalOpen} 
+            handleClose={() => {
+              this.setState({
+                ok: this.state.ok,
+                description: this.state.description,
+                modalOpen: false,
+                testResult: null 
+              });
+            }}  
+            data={this.state.testResult}
+          />
         </div>
       );
     }
