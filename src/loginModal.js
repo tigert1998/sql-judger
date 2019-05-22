@@ -4,13 +4,9 @@ import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Modal from '@material-ui/core/Modal';
 
-function rand() {
-  return Math.round(Math.random() * 20) - 10;
-}
-
 function getModalStyle() {
-  const top = 50 + rand();
-  const left = 50 + rand();
+  const top = 50;
+  const left = 50;
 
   return {
     top: `${top}%`,
@@ -45,10 +41,7 @@ class SimpleModal extends React.Component {
         >
           <div style={getModalStyle()} className={classes.paper}>
             <Typography variant="h6" id="modal-title">
-              {data.status ? "Yes" : "No"}
-            </Typography>
-            <Typography variant="subtitle1" id="simple-modal-description">
-              {data.reason}
+              WTF
             </Typography>
           </div>
         </Modal>
@@ -62,7 +55,6 @@ SimpleModal.propTypes = {
 };
 
 // We need an intermediary variable for handling the recursive nesting.
-const ResultModal = withStyles(styles)(SimpleModal);
+const LoginModal = withStyles(styles)(SimpleModal);
 
-export default ResultModal;
-
+export default LoginModal;

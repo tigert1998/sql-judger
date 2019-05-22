@@ -153,7 +153,7 @@ class AnswerSheet extends React.Component {
                 modalOpen: false,
                 testResult: null 
               });
-            }}  
+            }}
             data={this.state.testResult}
           />
         </div>

@@ -15,8 +15,12 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
+import Button from '@material-ui/core/Button';
+import { observable, decorate } from 'mobx';
+import { observer } from 'mobx-react';
 
 import AnswerSheet from './answerSheet';
+import LoginModal from './loginModal';
 import { API_ENDPOINT } from './constants';
 
 const drawerWidth = 240;
@@ -78,16 +82,13 @@ const styles = theme => ({
   },
 });
 
-class PersistentDrawerLeft extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      open: false,
-      problemNames: [],
-      problemID: null
-    };
-  }
-
+const PersistentDrawerLeft =
+observer(class PersistentDrawerLeft extends React.Component {
+  loginModalOpen = false;
+  drawerOpen = false;
+  problemNames = [];
+  problemID = null;
+  
   componentDidMount() {
     let that = this;
     fetch(API_ENDPOINT + '/api/archive').then((response) => {
@@ -96,10 +97,7 @@ class PersistentDrawerLeft extends React.Component {
         return;
       }
       response.json().then(function(data) {
-        that.setState({
-          open: that.state.open,
-          problemNames: data.slice()
-        });
+        that.problemNames = data.slice();
       }).catch((error) => {
         console.log("[log] run into an error when parsing into JSON:", error);    
       });;
@@ -109,16 +107,15 @@ class PersistentDrawerLeft extends React.Component {
   }
 
   handleDrawerOpen = () => {
-    this.setState({ open: true, state: this.state });
+    this.drawerOpen = true;
   };
 
   handleDrawerClose = () => {
-    this.setState({ open: false, state: this.state });
+    this.drawerOpen = false;
   };
 
   render() {
     const { classes, theme } = this.props;
-    const { open } = this.state;
 
     return (
       <div className={classes.root}>
@@ -126,28 +123,31 @@ class PersistentDrawerLeft extends React.Component {
         <AppBar
           position="fixed"
           className={classNames(classes.appBar, {
-            [classes.appBarShift]: open,
+            [classes.appBarShift]: this.drawerOpen,
           })}
         >
-          <Toolbar disableGutters={!open}>
+          <Toolbar disableGutters={!this.drawerOpen}>
             <IconButton
               color="inherit"
               aria-label="Open drawer"
               onClick={this.handleDrawerOpen}
-              className={classNames(classes.menuButton, open && classes.hide)}
+              className={classNames(classes.menuButton, this.drawerOpen && classes.hide)}
             >
               <MenuIcon />
             </IconButton>
-            <Typography variant="h6" color="inherit" noWrap>
+            <Typography variant="h6" color="inherit" noWrap style={{flexGrow: 1}}>
               SQL Judger
             </Typography>
+            <Button color="inherit" onClick={
+              () => { this.loginModalOpen = true; console.log(this.loginModalOpen); }
+            }>Login</Button>
           </Toolbar>
         </AppBar>
         <Drawer
           className={classes.drawer}
           variant="persistent"
           anchor="left"
-          open={open}
+          open={this.drawerOpen}
           classes={{
             paper: classes.drawerPaper,
           }}
@@ -159,16 +159,12 @@ class PersistentDrawerLeft extends React.Component {
           </div>
           <Divider />
           <List>
-            {this.state.problemNames.map((text, index) => (
+            {this.problemNames.map((text, index) => (
               <ListItem 
                 button 
                 key={text} 
-                onClick={() => { 
-                  this.setState({
-                    open: this.state.open, 
-                    problemNames: this.state.problemNames,
-                    problemID: text
-                  }) 
+                onClick={() => {
+                  this.problemID = text;
                 }}>
                 <ListItemText primary={text} />
               </ListItem>
@@ -177,16 +173,30 @@ class PersistentDrawerLeft extends React.Component {
         </Drawer>
         <main
           className={classNames(classes.content, {
-            [classes.contentShift]: open,
+            [classes.contentShift]: this.drawerOpen,
           })}
         >
           <div className={classes.drawerHeader} />
-          <AnswerSheet problemID={this.state.problemID}></AnswerSheet>
+          <AnswerSheet problemID={this.problemID}></AnswerSheet>
         </main>
+        <LoginModal 
+            open={this.loginModalOpen} 
+            handleClose={() => {
+              this.loginModalOpen = false;
+            }}
+            data={{}}
+          />
       </div>
     );
   }
-}
+});
+
+decorate(PersistentDrawerLeft, {
+  loginModalOpen: observable,
+  drawerOpen: observable,
+  problemNames: observable,
+  problemID: observable
+})
 
 PersistentDrawerLeft.propTypes = {
   classes: PropTypes.object.isRequired,
