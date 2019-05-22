@@ -7,6 +7,7 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import Markdown from '@nteract/markdown';
 
+import STORE from './store';
 import { API_ENDPOINT } from './constants';
 import ResultModal from './resultModal';
 
@@ -96,7 +97,7 @@ class AnswerSheet extends React.Component {
               SQL Judger
             </Typography>
             <Typography component="p">
-              Welcome!
+              {STORE.logined ? "Hello " + STORE.userID + "!" : 'Welcome!'}
             </Typography>
           </Paper>
         </div>

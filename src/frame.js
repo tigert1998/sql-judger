@@ -16,12 +16,14 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Button from '@material-ui/core/Button';
+import AccountCircle from '@material-ui/icons/AccountCircle';
 import { observable, decorate } from 'mobx';
 import { observer } from 'mobx-react';
 
 import AnswerSheet from './answerSheet';
 import LoginModal from './loginModal';
 import { API_ENDPOINT } from './constants';
+import STORE from './store';
 
 const drawerWidth = 240;
 
@@ -138,9 +140,26 @@ observer(class PersistentDrawerLeft extends React.Component {
             <Typography variant="h6" color="inherit" noWrap style={{flexGrow: 1}}>
               SQL Judger
             </Typography>
-            <Button color="inherit" onClick={
-              () => { this.loginModalOpen = true; console.log(this.loginModalOpen); }
-            }>Login</Button>
+            {
+              STORE.logined ? 
+              [
+                <Typography key='0' variant="subheading" color="inherit" noWrap>
+                  {STORE.userID}
+                </Typography>,
+                <IconButton
+                  key='1'
+                  aria-haspopup="true"
+                  color="inherit"
+                >
+                  <AccountCircle />
+                </IconButton>
+              ] : 
+              <Button color="inherit" onClick={
+                () => { this.loginModalOpen = true; }
+              }>
+                LOGIN
+              </Button>
+            }
           </Toolbar>
         </AppBar>
         <Drawer
@@ -158,18 +177,28 @@ observer(class PersistentDrawerLeft extends React.Component {
             </IconButton>
           </div>
           <Divider />
-          <List>
-            {this.problemNames.map((text, index) => (
-              <ListItem 
-                button 
-                key={text} 
-                onClick={() => {
-                  this.problemID = text;
-                }}>
-                <ListItemText primary={text} />
+          {
+            STORE.logined ?
+            <List>
+              {this.problemNames.map((text, index) => (
+                <ListItem 
+                  button 
+                  key={text} 
+                  onClick={() => {
+                    this.problemID = text;
+                  }}>
+                  <ListItemText primary={text} />
+                </ListItem>
+              ))}
+            </List> :
+            <List>
+              <ListItem>
+                <Typography variant="subheading" color="inherit">
+                  You haven't logined yet!
+                </Typography>
               </ListItem>
-            ))}
-          </List>
+            </List>
+          }
         </Drawer>
         <main
           className={classNames(classes.content, {
@@ -196,7 +225,7 @@ decorate(PersistentDrawerLeft, {
   drawerOpen: observable,
   problemNames: observable,
   problemID: observable
-})
+});
 
 PersistentDrawerLeft.propTypes = {
   classes: PropTypes.object.isRequired,
